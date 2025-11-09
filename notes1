@@ -1,0 +1,1 @@
+sort data.txt | uniq -u  -- only line of text to file that occurs only once 
