@@ -9,3 +9,82 @@ cat data.txt | base64 -d -- The password for the next level is stored in the fil
 
 strings data.txt | grep "=" -- The password for the next level is stored in the file data.txt in one of the few human-readable strings, preceded by several ‘=’ characters.
 
+# 1. Search for the file named data.txt -- The password for the next level is stored in the file data.txt, which is a hexdump of a file that has been repeatedly compressed. For this level it may be useful to create a directory under /tmp in which you can work. Use mkdir with a hard to guess directory name. Or better, use the command “mktemp -d”. Then copy the datafile using cp, and rename it using mv (read the manpages!)
+
+find . -name "data.txt"
+
+# 2. Create a temporary working directory
+tmpdir=$(mktemp -d)
+cd "$tmpdir"
+
+# 3. Copy and rename the hex dump
+cp /home/bandit12/data.txt .
+mv data.txt hex_dump.txt
+
+# 4. Convert hex → binary
+xxd -r hex_dump.txt > compressed.bin
+
+# 5. Identify the file type
+file compressed.bin
+
+# 6. Unpack gzip
+mv compressed.bin layer1.gz
+gunzip layer1.gz
+
+# 7. Identify the file type
+file layer1
+
+# 8. Unpack bzip2
+mv layer1 layer2.bz2
+bunzip2 layer2.bz2
+
+# 9. Identify the file type
+file layer2
+
+# 10. Unpack gzip
+mv layer2 layer3.gz
+gunzip layer3.gz
+
+# 11. Identify the file type
+file layer3
+
+# 12. Extract tar archive
+tar -xf layer3
+
+# 13. List contents
+ls -l
+
+# 14. Identify the file type
+file data5.bin
+
+# 15. Extract tar archive
+tar -xf data5.bin
+
+# 16. Identify the file type
+file data6.bin
+
+# 17. Unpack bzip2
+mv data6.bin layer6.bz2
+bunzip2 layer6.bz2
+
+# 18. Identify the file type
+file layer6
+
+# 19. Extract tar archive
+tar -xf layer6
+
+# 20. Identify the file type
+file data8.bin
+
+# 21. Unpack gzip
+mv data8.bin final.gz
+gunzip final.gz
+
+# 22. Identify the file type
+file final
+
+# 23. Display the password
+cat final
+# or
+strings final
+
